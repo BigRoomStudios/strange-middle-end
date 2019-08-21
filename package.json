@@ -1,0 +1,60 @@
+{
+  "name": "strange-middle-end",
+  "version": "0.0.0",
+  "description": "a middle-end composer using redux, normalizr, and immer",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "build": "npm run clean && run-p build:*",
+    "build:development": "NODE_ENV=development rollup -c",
+    "build:production": "NODE_ENV=production rollup -c",
+    "clean": "rimraf dist/",
+    "test": "lab -a @hapi/code -t 100 -L",
+    "coveralls": "lab -r lcov | coveralls"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bigroomstudios/strange-middle-end.git"
+  },
+  "keywords": [
+    "middle-end",
+    "redux",
+    "normalizr",
+    "immer",
+    "react"
+  ],
+  "author": "Devin Ivy <devin@bigroomstudios.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bigroomstudios/strange-middle-end/issues"
+  },
+  "homepage": "https://github.com/bigroomstudios/strange-middle-end#readme",
+  "peerDependencies": {
+    "redux": ">=3 <5",
+    "immer": ">=1 <4",
+    "normalizr": "3.x.x"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
+    "@hapi/code": "6.x.x",
+    "@hapi/hapi": "18.x.x",
+    "@hapi/lab": "20.x.x",
+    "coveralls": "3.x.x",
+    "redux": "4.x.x",
+    "rollup": "1.x.x",
+    "rollup-plugin-babel": "4.x.x",
+    "rollup-plugin-commonjs": "10.x.x",
+    "rollup-plugin-filesize": "6.x.x",
+    "rollup-plugin-node-resolve": "5.x.x",
+    "rollup-plugin-peer-deps-external": "2.x.x",
+    "rollup-plugin-terser": "5.x.x",
+    "immer": "3.x.x",
+    "normalizr": "3.x.x",
+    "npm-run-all": "4.x.x",
+    "rimraf": "3.x.x"
+  }
+}
