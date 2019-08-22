@@ -2,16 +2,14 @@
   "name": "strange-middle-end",
   "version": "0.0.0",
   "description": "a middle-end composer using redux, normalizr, and immer",
-  "main": "dist/index.js",
-  "module": "dist/index.es.js",
+  "main": "cjs/index.js",
+  "module": "esm/index.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "build": "npm run clean && run-p build:*",
-    "build:development": "NODE_ENV=development rollup -c",
-    "build:production": "NODE_ENV=production rollup -c",
-    "clean": "rimraf dist/",
+    "build": "npm run clean && rollup -c",
+    "clean": "rimraf umd cjs esm",
     "test": "lab -a @hapi/code -t 100 -L",
     "coveralls": "lab -r lcov | coveralls"
   },
