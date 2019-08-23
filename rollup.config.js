@@ -27,7 +27,7 @@ module.exports = [
     },
     {
         input: {
-            index: 'lib/index.js',
+            index: 'lib/index.js'
         },
         output: [
             {

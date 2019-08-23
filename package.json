@@ -11,6 +11,7 @@
     "build": "npm run clean && rollup -c",
     "clean": "rimraf umd cjs esm",
     "test": "lab -a @hapi/code -t 100 -L",
+    "lint": "lab -dL",
     "coveralls": "lab -r lcov | coveralls"
   },
   "repository": {
@@ -32,6 +33,7 @@
   "homepage": "https://github.com/bigroomstudios/strange-middle-end#readme",
   "peerDependencies": {
     "redux": ">=3 <5",
+    "redux-thunk": "2.x.x",
     "immer": ">=1 <4",
     "normalizr": "3.x.x"
   },
@@ -43,6 +45,7 @@
     "@hapi/lab": "20.x.x",
     "coveralls": "3.x.x",
     "redux": "4.x.x",
+    "redux-thunk": "2.x.x",
     "rollup": "1.x.x",
     "rollup-plugin-babel": "4.x.x",
     "rollup-plugin-commonjs": "10.x.x",
