@@ -3,6 +3,7 @@
 const Code = require('@hapi/code');
 const Lab = require('@hapi/lab');
 const Redux = require('redux');
+const { default: ReduxThunk } = require('redux-thunk');
 const { schema: { Entity }, ...Normalizr } = require('normalizr');
 const MiddleEnd = require('../lib');
 
@@ -11,7 +12,7 @@ const expect = Code.expect;
 
 describe('StrangeMiddleEnd', () => {
 
-    describe.only('create() creates a middle-end', () => {
+    describe('create() creates a middle-end', () => {
 
         it('is initializable, creating store during initialization.', () => {
 
@@ -37,6 +38,15 @@ describe('StrangeMiddleEnd', () => {
             expect(m.initialize()).to.shallow.equal(m);
 
             expect(called).to.equal(true);
+            expect(m.initialized).to.equal(true);
+
+            // Re-initialize
+
+            called = false;
+
+            expect(m.initialize()).to.shallow.equal(m);
+
+            expect(called).to.equal(false);
             expect(m.initialized).to.equal(true);
         });
 
@@ -119,7 +129,8 @@ describe('StrangeMiddleEnd', () => {
                 mods: {
                     a: { initialize: () => called++ },
                     b: {},
-                    c: { initialize: () => called++ }
+                    c: { initialize: () => called++ },
+                    d: null
                 },
                 createStore: () => Redux.createStore(() => null)
             });
@@ -153,7 +164,8 @@ describe('StrangeMiddleEnd', () => {
                             })
                         })
                     }
-                }
+                },
+                d: null
             };
 
             const m = MiddleEnd.create({
@@ -240,7 +252,8 @@ describe('StrangeMiddleEnd', () => {
                 mods: {
                     a: { reducer: (state = 0, { type }) => state + Number(type === 'a') },
                     b: {},
-                    c: { reducer: (state = 0, { type }) => state + Number(type === 'c') }
+                    c: { reducer: (state = 0, { type }) => state + Number(type === 'c') },
+                    d: null
                 },
                 createStore: (reducers) => Redux.createStore(reducers)
             });
@@ -262,7 +275,8 @@ describe('StrangeMiddleEnd', () => {
                 mods: {
                     a: { reducer: (state = 0, { type }) => state + Number(type === 'a') },
                     b: {},
-                    c: { reducer: (state = 0, { type }) => state + Number(type === 'c') }
+                    c: { reducer: (state = 0, { type }) => state + Number(type === 'c') },
+                    d: null
                 },
                 createStore: (reducers) => Redux.createStore(reducers)
             });
@@ -294,7 +308,8 @@ describe('StrangeMiddleEnd', () => {
                         actions: {
                             increment: () => ({ type: 'c' })
                         }
-                    }
+                    },
+                    d: null
                 },
                 createStore: (reducers) => Redux.createStore(reducers)
             });
@@ -320,7 +335,8 @@ describe('StrangeMiddleEnd', () => {
                 mods: {
                     a: { selectors: {} },
                     b: {},
-                    c: { selectors: {} }
+                    c: { selectors: {} },
+                    d: null
                 },
                 createStore: () => Redux.createStore(() => null)
             });
@@ -335,7 +351,40 @@ describe('StrangeMiddleEnd', () => {
 
     describe('middleware', () => {
 
-        it('', () => {});
+        it('thunk is redux-thunk.', () => {
+
+            expect(MiddleEnd.middleware.thunk).to.shallow.equal(ReduxThunk);
+
+            const store = Redux.createStore((_, { type }) => type, Redux.applyMiddleware(MiddleEnd.middleware.thunk));
+
+            store.dispatch((dispatch) => dispatch({ type: 'a' }));
+
+            expect(store.getState()).to.equal('a');
+        });
+
+        it('errorLogger logs errors.', (flags) => {
+
+            let lastErrorLog;
+            const originalErrorLog = console.error;
+
+            console.error = (...args) => {
+
+                lastErrorLog = args;
+            };
+
+            flags.onCleanup = () => {
+
+                console.error = originalErrorLog;
+            };
+
+            const store = Redux.createStore(() => null, Redux.applyMiddleware(MiddleEnd.middleware.errorLogger));
+
+            store.dispatch({ type: 'a' });
+            expect(lastErrorLog).to.not.exist();
+
+            store.dispatch({ type: 'a', error: true, meta: { meta: true }, payload: { message: 'badness' } });
+            expect(lastErrorLog).to.equal(['Error from action "a"', { meta: true }, '\n', { message: 'badness' }]);
+        });
     });
 
     describe('createAction()', () => {
@@ -343,34 +392,156 @@ describe('StrangeMiddleEnd', () => {
         it('', () => {});
     });
 
-    describe('createTypes()', () => {
+    describe('createTypes() and type', () => {
 
-        it('', () => {});
-    });
+        it('creates simple action types.', () => {
 
-    describe('type', () => {
+            const types = MiddleEnd.createTypes({
+                BIG: true,
+                BAD: MiddleEnd.type.simple
+            });
 
-        it('', () => {});
+            expect(types).to.equal({
+                BIG: 'BIG',
+                BAD: 'BAD'
+            });
+        });
+
+        it('creates async action types.', () => {
+
+            const types = MiddleEnd.createTypes({
+                BIG: MiddleEnd.type.async,
+                BAD: MiddleEnd.type.async
+            });
+
+            expect(types).to.equal({
+                BIG: {
+                    BASE: 'BIG',
+                    BEGIN: 'BIG/BEGIN',
+                    SUCCESS: 'BIG/SUCCESS',
+                    FAIL: 'BIG/FAIL'
+                },
+                BAD: {
+                    BASE: 'BAD',
+                    BEGIN: 'BAD/BEGIN',
+                    SUCCESS: 'BAD/SUCCESS',
+                    FAIL: 'BAD/FAIL'
+                }
+            });
+        });
+
+        it('creates action types with prefix.', () => {
+
+            const types = MiddleEnd.createTypes('XXX', {
+                BIG: MiddleEnd.type.simple,
+                BAD: MiddleEnd.type.async
+            });
+
+            expect(types).to.equal({
+                BIG: 'XXX/BIG',
+                BAD: {
+                    BASE: 'XXX/BAD',
+                    BEGIN: 'XXX/BAD/BEGIN',
+                    SUCCESS: 'XXX/BAD/SUCCESS',
+                    FAIL: 'XXX/BAD/FAIL'
+                }
+            });
+        });
+
+        it('passes through other action types.', () => {
+
+            const types = MiddleEnd.createTypes({
+                BIG: 'VERY_BIG',
+                BAD: {
+                    OK: 'BAD/OK',
+                    OOPS: 'BAD/OOPS'
+                }
+            });
+
+            expect(types).to.equal({
+                BIG: 'VERY_BIG',
+                BAD: {
+                    OK: 'BAD/OK',
+                    OOPS: 'BAD/OOPS'
+                }
+            });
+        });
     });
 
     describe('isTypeOfBase()', () => {
 
-        it('', () => {});
+        it('checks base of simple and async actions.', () => {
+
+            const types = MiddleEnd.createTypes({
+                BIG: MiddleEnd.type.async,
+                BAD: MiddleEnd.type.simple
+            });
+
+            expect(MiddleEnd.isTypeOfBase(types.BIG.BASE, types.BIG.BASE)).to.equal(true);
+            expect(MiddleEnd.isTypeOfBase(types.BIG.BEGIN, types.BIG.BASE)).to.equal(true);
+            expect(MiddleEnd.isTypeOfBase(types.BIG.SUCCESS, types.BIG.BASE)).to.equal(true);
+            expect(MiddleEnd.isTypeOfBase(types.BIG.FAIL, types.BIG.BASE)).to.equal(true);
+            expect(MiddleEnd.isTypeOfBase(types.BAD, types.BAD)).to.equal(true);
+            expect(MiddleEnd.isTypeOfBase(types.BIG.BASE, 'BIGX')).to.equal(false);
+            expect(MiddleEnd.isTypeOfBase(types.BAD, 'BADX')).to.equal(false);
+        });
     });
 
     describe('isTypeBegin()', () => {
 
-        it('', () => {});
+        it('checks base of beginning async actions.', () => {
+
+            const types = MiddleEnd.createTypes({
+                BIG: MiddleEnd.type.async,
+                BAD: MiddleEnd.type.simple
+            });
+
+            expect(MiddleEnd.isTypeBegin(types.BIG.BASE, types.BIG.BASE)).to.equal(false);
+            expect(MiddleEnd.isTypeBegin(types.BIG.BEGIN, types.BIG.BASE)).to.equal(true);
+            expect(MiddleEnd.isTypeBegin(types.BIG.SUCCESS, types.BIG.BASE)).to.equal(false);
+            expect(MiddleEnd.isTypeBegin(types.BIG.FAIL, types.BIG.BASE)).to.equal(false);
+            expect(MiddleEnd.isTypeBegin(types.BAD, types.BAD)).to.equal(false);
+            expect(MiddleEnd.isTypeBegin(types.BIG.BASE, 'BIGX')).to.equal(false);
+            expect(MiddleEnd.isTypeBegin(types.BAD, 'BADX')).to.equal(false);
+        });
     });
 
     describe('isTypeSuccess()', () => {
 
-        it('', () => {});
+        it('checks base of successful async actions.', () => {
+
+            const types = MiddleEnd.createTypes({
+                BIG: MiddleEnd.type.async,
+                BAD: MiddleEnd.type.simple
+            });
+
+            expect(MiddleEnd.isTypeSuccess(types.BIG.BASE, types.BIG.BASE)).to.equal(false);
+            expect(MiddleEnd.isTypeSuccess(types.BIG.BEGIN, types.BIG.BASE)).to.equal(false);
+            expect(MiddleEnd.isTypeSuccess(types.BIG.SUCCESS, types.BIG.BASE)).to.equal(true);
+            expect(MiddleEnd.isTypeSuccess(types.BIG.FAIL, types.BIG.BASE)).to.equal(false);
+            expect(MiddleEnd.isTypeSuccess(types.BAD, types.BAD)).to.equal(false);
+            expect(MiddleEnd.isTypeSuccess(types.BIG.BASE, 'BIGX')).to.equal(false);
+            expect(MiddleEnd.isTypeSuccess(types.BAD, 'BADX')).to.equal(false);
+        });
     });
 
     describe('isTypeFail()', () => {
 
-        it('', () => {});
+        it('checks base of failing async actions.', () => {
+
+            const types = MiddleEnd.createTypes({
+                BIG: MiddleEnd.type.async,
+                BAD: MiddleEnd.type.simple
+            });
+
+            expect(MiddleEnd.isTypeFail(types.BIG.BASE, types.BIG.BASE)).to.equal(false);
+            expect(MiddleEnd.isTypeFail(types.BIG.BEGIN, types.BIG.BASE)).to.equal(false);
+            expect(MiddleEnd.isTypeFail(types.BIG.SUCCESS, types.BIG.BASE)).to.equal(false);
+            expect(MiddleEnd.isTypeFail(types.BIG.FAIL, types.BIG.BASE)).to.equal(true);
+            expect(MiddleEnd.isTypeFail(types.BAD, types.BAD)).to.equal(false);
+            expect(MiddleEnd.isTypeFail(types.BIG.BASE, 'BIGX')).to.equal(false);
+            expect(MiddleEnd.isTypeFail(types.BAD, 'BADX')).to.equal(false);
+        });
     });
 
     describe('createReducer()', () => {
