@@ -546,7 +546,112 @@ describe('StrangeMiddleEnd', () => {
 
     describe('createReducer()', () => {
 
-        it('', () => {});
+        it('creates an immutable reducer by default, when passed no configuration.', () => {
+
+            const initialState = {};
+            const reducer = MiddleEnd.createReducer(initialState, {
+                SOME_TYPE: (state, action) => {
+
+                    state.action = action;
+
+                    return state;
+                }
+            });
+
+            expect(reducer(undefined, { type: 'SOME_TYPE' })).to.shallow.equal(initialState);
+            expect(reducer(undefined, { type: 'SOME_TYPE' })).to.equal({ action: { type: 'SOME_TYPE' } });
+        });
+
+        it('creates an immutable reducer by default, when passed empty configuration.', () => {
+
+            const initialState = {};
+            const reducer = MiddleEnd.createReducer({}, initialState, {
+                SOME_TYPE: (state, action) => {
+
+                    state.action = action;
+
+                    return state;
+                }
+            });
+
+            expect(reducer(undefined, { type: 'SOME_TYPE' })).to.shallow.equal(initialState);
+            expect(reducer(undefined, { type: 'SOME_TYPE' })).to.equal({ action: { type: 'SOME_TYPE' } });
+        });
+
+        it('disallows "undefined" keys.', () => {
+
+            const createReducer = () => {
+
+                const types = {};
+
+                MiddleEnd.createReducer({}, {
+                    [types.DOES_NOT_EXIST]: (state) => state
+                });
+            };
+
+            expect(createReducer).to.throw('Reducer has an undefined handler. Ensure that all actions used in this reducer exist.');
+        });
+
+        it('creates a reducer that runs reducer by action type specifically when there is an exact match.', () => {
+
+            const reducer = MiddleEnd.createReducer({ value: 0 }, {
+                INCREMENT: ({ value }) => ({ value: value + 1 }),
+                DECREMENT: ({ value }) => ({ value: value - 1 })
+            });
+
+            expect(reducer(undefined, { type: 'NO_MATCH' })).to.equal({ value: 0 });
+            expect(reducer(undefined, { type: 'INCREMENT' })).to.equal({ value: 1 });
+            expect(reducer(undefined, { type: 'DECREMENT' })).to.equal({ value: -1 });
+            expect(reducer({ value: 2 }, { type: 'NO_MATCH' })).to.equal({ value: 2 });
+            expect(reducer({ value: 2 }, { type: 'INCREMENT' })).to.equal({ value: 3 });
+            expect(reducer({ value: 2 }, { type: 'DECREMENT' })).to.equal({ value: 1 });
+
+            const state = { value: 2 };
+            expect(reducer(state, { type: 'NO_MATCH' })).to.shallow.equal(state);
+            expect(reducer(state, { type: 'INCREMENT' })).to.not.shallow.equal(state);
+            expect(reducer(state, { type: 'DECREMENT' })).to.not.shallow.equal(state);
+        });
+
+        it('can create mutable reducers.', () => {
+
+            const reducer = MiddleEnd.createReducer({ mutable: true }, { value: 0 }, {
+                INCREMENT: (draft) => {
+
+                    draft.value++;
+                },
+                DECREMENT: (draft) => {
+
+                    draft.value--;
+                }
+            });
+
+            expect(reducer(undefined, { type: 'NO_MATCH' })).to.equal({ value: 0 });
+            expect(reducer(undefined, { type: 'INCREMENT' })).to.equal({ value: 1 });
+            expect(reducer(undefined, { type: 'DECREMENT' })).to.equal({ value: -1 });
+            expect(reducer({ value: 2 }, { type: 'NO_MATCH' })).to.equal({ value: 2 });
+            expect(reducer({ value: 2 }, { type: 'INCREMENT' })).to.equal({ value: 3 });
+            expect(reducer({ value: 2 }, { type: 'DECREMENT' })).to.equal({ value: 1 });
+
+            const state = { value: 2 };
+            expect(reducer(state, { type: 'NO_MATCH' })).to.shallow.equal(state);
+            expect(reducer(state, { type: 'INCREMENT' })).to.not.shallow.equal(state);
+            expect(reducer(state, { type: 'DECREMENT' })).to.not.shallow.equal(state);
+        });
+
+        it('can lazily set initial state.', () => {
+
+            const reducer = MiddleEnd.createReducer(() => ({ value: 0 }), {
+                INCREMENT: ({ value }) => ({ value: value + 1 }),
+                DECREMENT: ({ value }) => ({ value: value - 1 })
+            });
+
+            expect(reducer(undefined, { type: 'NO_MATCH' })).to.equal({ value: 0 });
+            expect(reducer(undefined, { type: 'INCREMENT' })).to.equal({ value: 1 });
+            expect(reducer(undefined, { type: 'DECREMENT' })).to.equal({ value: -1 });
+            expect(reducer({ value: 2 }, { type: 'NO_MATCH' })).to.equal({ value: 2 });
+            expect(reducer({ value: 2 }, { type: 'INCREMENT' })).to.equal({ value: 3 });
+            expect(reducer({ value: 2 }, { type: 'DECREMENT' })).to.equal({ value: 1 });
+        });
     });
 
     describe('createEntityReducer()', () => {
