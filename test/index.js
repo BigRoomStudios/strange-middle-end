@@ -1030,5 +1030,388 @@ describe('StrangeMiddleEnd', () => {
                 indexes: {}
             });
         });
+
+        it('indexes all async actions by default, recording originals and errors.', () => {
+
+            const reducer = MiddleEnd.createEntityReducer();
+
+            const state1 = reducer(undefined, {
+                type: 'X/BEGIN',
+                meta: { index: 'X' }
+            });
+
+            expect(state1).to.equal({
+                entities: {},
+                indexes: {
+                    X: {
+                        error: null,
+                        inFlight: 1,
+                        original: undefined,
+                        result: undefined
+                    }
+                }
+            });
+
+            const state2 = reducer(state1, {
+                type: 'X/FAIL',
+                meta: { index: 'X' }
+            });
+
+            expect(state2).to.equal({
+                entities: {},
+                indexes: {
+                    X: {
+                        error: null,
+                        inFlight: 0,
+                        original: undefined,
+                        result: undefined
+                    }
+                }
+            });
+
+            const state3 = reducer(state2, {
+                type: 'Y/BEGIN',
+                meta: { index: 'Y' }
+            });
+
+            expect(state3).to.equal({
+                entities: {},
+                indexes: {
+                    X: {
+                        error: null,
+                        inFlight: 0,
+                        original: undefined,
+                        result: undefined
+                    },
+                    Y: {
+                        error: null,
+                        inFlight: 1,
+                        original: undefined,
+                        result: undefined
+                    }
+                }
+            });
+
+            const state4 = reducer(state3, {
+                type: 'Y/SUCCESS',
+                meta: { index: 'Y' }
+            });
+
+            expect(state4).to.equal({
+                entities: {},
+                indexes: {
+                    X: {
+                        error: null,
+                        inFlight: 0,
+                        original: undefined,
+                        result: undefined
+                    },
+                    Y: {
+                        error: null,
+                        inFlight: 0,
+                        original: undefined,
+                        result: undefined
+                    }
+                }
+            });
+
+            const state5 = reducer(state4, {
+                type: 'X/BEGIN',
+                payload: { id: 1 },
+                meta: { index: 'X' }
+            });
+
+            expect(state5).to.equal({
+                entities: {},
+                indexes: {
+                    X: {
+                        error: null,
+                        inFlight: 1,
+                        original: { id: 1 },
+                        result: undefined
+                    },
+                    Y: {
+                        error: null,
+                        inFlight: 0,
+                        original: undefined,
+                        result: undefined
+                    }
+                }
+            });
+
+            const state6 = reducer(state5, {
+                type: 'X/SUCCESS',
+                payload: { id: 1, name: 'Harper' },
+                meta: { index: 'X', original: { id: 1, updated: true } }
+            });
+
+            expect(state6).to.equal({
+                entities: {},
+                indexes: {
+                    X: {
+                        error: null,
+                        inFlight: 0,
+                        original: { id: 1, updated: true },
+                        result: { id: 1, name: 'Harper' }
+                    },
+                    Y: {
+                        error: null,
+                        inFlight: 0,
+                        original: undefined,
+                        result: undefined
+                    }
+                }
+            });
+
+            const state7 = reducer(state6, {
+                type: 'Y/BEGIN',
+                payload: { id: 2 },
+                meta: { index: 'Y' }
+            });
+
+            expect(state7).to.equal({
+                entities: {},
+                indexes: {
+                    X: {
+                        error: null,
+                        inFlight: 0,
+                        original: { id: 1, updated: true },
+                        result: { id: 1, name: 'Harper' }
+                    },
+                    Y: {
+                        error: null,
+                        inFlight: 1,
+                        original: { id: 2 },
+                        result: undefined
+                    }
+                }
+            });
+
+            const state8 = reducer(state7, {
+                type: 'Y/FAIL',
+                error: true,
+                payload: { message: 'Fail!' },
+                meta: { index: 'Y', original: { id: 2, updated: true } }
+            });
+
+            expect(state8).to.equal({
+                entities: {},
+                indexes: {
+                    X: {
+                        error: null,
+                        inFlight: 0,
+                        original: { id: 1, updated: true },
+                        result: { id: 1, name: 'Harper' }
+                    },
+                    Y: {
+                        error: { message: 'Fail!' },
+                        inFlight: 0,
+                        original: { id: 2, updated: true },
+                        result: undefined
+                    }
+                }
+            });
+
+            const state9 = reducer(state8, {
+                type: 'X/BEGIN',
+                payload: { id: 1 },
+                meta: { index: 'X' }
+            });
+
+            expect(state9).to.equal({
+                entities: {},
+                indexes: {
+                    X: {
+                        error: null,
+                        inFlight: 1,
+                        original: { id: 1 },
+                        result: { id: 1, name: 'Harper' }
+                    },
+                    Y: {
+                        error: { message: 'Fail!' },
+                        inFlight: 0,
+                        original: { id: 2, updated: true },
+                        result: undefined
+                    }
+                }
+            });
+
+            const state10 = reducer(state9, {
+                type: 'X/BEGIN',
+                payload: { id: 1 },
+                meta: { index: 'X' }
+            });
+
+            expect(state10).to.equal({
+                entities: {},
+                indexes: {
+                    X: {
+                        error: null,
+                        inFlight: 2,
+                        original: { id: 1 },
+                        result: { id: 1, name: 'Harper' }
+                    },
+                    Y: {
+                        error: { message: 'Fail!' },
+                        inFlight: 0,
+                        original: { id: 2, updated: true },
+                        result: undefined
+                    }
+                }
+            });
+
+            const state11 = reducer(state10, {
+                type: 'X/FAIL',
+                error: true,
+                meta: { index: 'X' }
+            });
+
+            expect(state11).to.equal({
+                entities: {},
+                indexes: {
+                    X: {
+                        error: true,
+                        inFlight: 1,
+                        original: { id: 1 },
+                        result: { id: 1, name: 'Harper' }
+                    },
+                    Y: {
+                        error: { message: 'Fail!' },
+                        inFlight: 0,
+                        original: { id: 2, updated: true },
+                        result: undefined
+                    }
+                }
+            });
+        });
+
+        it('skips indexing when configured.', () => {
+
+            const reducer = MiddleEnd.createEntityReducer({ shouldIndex: false });
+
+            const state = reducer(undefined, {
+                type: 'X/BEGIN',
+                meta: { index: 'X' }
+            });
+
+            expect(state).to.equal({
+                entities: {},
+                indexes: {}
+            });
+        });
+
+        it('skips indexing when configured with a function.', () => {
+
+            const reducer = MiddleEnd.createEntityReducer({ shouldIndex: (index) => index === 'Y' });
+
+            const state1 = reducer(undefined, {
+                type: 'X/BEGIN',
+                meta: { index: 'X' }
+            });
+
+            expect(state1).to.equal({
+                entities: {},
+                indexes: {}
+            });
+
+            const state2 = reducer(undefined, {
+                type: 'Y/BEGIN',
+                meta: { index: 'Y' }
+            });
+
+            expect(state2).to.equal({
+                entities: {},
+                indexes: {
+                    Y: {
+                        error: null,
+                        inFlight: 1,
+                        original: undefined,
+                        result: undefined
+                    }
+                }
+            });
+        });
+
+        it('skips indexing when action has no index.', () => {
+
+            const reducer = MiddleEnd.createEntityReducer();
+
+            const state1 = reducer(undefined, {
+                type: 'X/BEGIN'
+            });
+
+            expect(state1).to.equal({
+                entities: {},
+                indexes: {}
+            });
+
+            const state2 = reducer(state1, {
+                type: 'X/BEGIN',
+                meta: { index: null }
+            });
+
+            expect(state2).to.equal({
+                entities: {},
+                indexes: {}
+            });
+        });
+
+        it('indexes normalized results.', () => {
+
+            const schema = {
+                dog: new Entity('dogs'),
+                person: new Entity('people')
+            };
+
+            schema.person.define({
+                pets: [schema.dog]
+            });
+
+            const reducer = MiddleEnd.createEntityReducer();
+
+            const state1 = reducer(undefined, {
+                type: 'X/BEGIN',
+                meta: { index: 'X' }
+            });
+
+            expect(state1).to.equal({
+                entities: {},
+                indexes: {
+                    X: {
+                        error: null,
+                        inFlight: 1,
+                        original: undefined,
+                        result: undefined
+                    }
+                }
+            });
+
+            const payload = {
+                id: 10,
+                name: 'Marisha',
+                pets: [
+                    { id: 20, name: 'Ren', age: 4 },
+                    { id: 21, name: 'Sully', age: 7 }
+                ]
+            };
+
+            const state2 = reducer(state1, {
+                type: 'X/SUCCESS',
+                payload: Normalizr.normalize(payload, schema.person),
+                meta: { index: 'X' }
+            });
+
+            expect(state2).to.equal({
+                entities: {},
+                indexes: {
+                    X: {
+                        error: null,
+                        inFlight: 0,
+                        original: undefined,
+                        result: 10
+                    }
+                }
+            });
+        });
     });
 });
