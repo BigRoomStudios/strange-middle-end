@@ -387,6 +387,41 @@ describe('StrangeMiddleEnd', () => {
         });
     });
 
+    describe('relatedFields()', () => {
+
+        const obj = {
+            id: 10,
+            key: 11,
+            name: 'X',
+            age: 42
+        };
+
+        it('returns object picking existing related fields, preserving the id field.', () => {
+
+            expect(MiddleEnd.relatedFields(obj, ['name', 'age', 'unknown'])).to.equal({
+                id: 10,
+                name: 'X',
+                age: 42
+            });
+        });
+
+        it('returns nothing when none of the fields exist.', () => {
+
+            expect(MiddleEnd.relatedFields(obj, ['xname', 'xage'])).to.be.undefined();
+        });
+
+        it('can be configured to use any id field.', () => {
+
+            expect(MiddleEnd.relatedFields(obj, ['name', 'age', 'unknown'], { idAttribute: 'key' })).to.equal({
+                key: 11,
+                name: 'X',
+                age: 42
+            });
+
+            expect(MiddleEnd.relatedFields(obj, ['xname', 'xage'], { idAttribute: 'key' })).to.be.undefined();
+        });
+    });
+
     describe('createAction()', () => {
 
         it('', () => {});
