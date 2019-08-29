@@ -1,5 +1,7 @@
 'use strict';
 
 module.exports = {
-    presets: ['@babel/preset-env']
+    presets: [
+        ['@babel/env', { modules: false }]
+    ]
 };

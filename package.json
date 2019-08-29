@@ -2,8 +2,8 @@
   "name": "strange-middle-end",
   "version": "0.0.0",
   "description": "a middle-end composer using redux, normalizr, and immer",
-  "main": "cjs/index.js",
-  "module": "esm/index.js",
+  "main": "dist/strange-middle-end.js",
+  "module": "dist/strange-middle-end.module.js",
   "directories": {
     "test": "test"
   },
@@ -20,6 +20,8 @@
   },
   "keywords": [
     "middle-end",
+    "composer",
+    "utility",
     "redux",
     "normalizr",
     "immer",
