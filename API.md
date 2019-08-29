@@ -123,4 +123,42 @@ Resulting actions take the following shapes:
 ## Reducers
 
 #### `createReducer([config], initialState, handlers)`
+
+Returns a redux reducer where:
+ - `config` - configures the reducer to use mutable handlers when `config.mutable` is `true`.  Mutable handlers are wrapped using [immer](https://github.com/immerjs/immer)'s `produce()`.
+ - `initialState` - the initial state of the reducer, or a function returning its initial state.
+ - `handler` - an object containing handlers keyed by action type.
+
+```js
+const { INCREMENT, FETCH_USER } = MiddleEnd.createTypes({
+    INCREMENT: MiddleEnd.type.simple,
+    FETCH_USER: MiddleEnd.type.async
+});
+
+const reducer = MiddleEnd.createReducer({ mutable: true }, { value: 0 }, {
+    [INCREMENT]: (draft) => {
+
+        draft.value++;
+    },
+    [FETCH_USER.FAIL]: (draft) => {
+
+        draft.value = 0;
+    }
+})
+```
+
 #### `createEntityReducer({ schema, shouldMerge, shouldIndex })`
+
+Returns a redux reducer for handling normalized, id-keyed entities (e.g. from an external data source) and for indexing action results.  The resulting reducer has state of the shape `{ entities: {}, indexes: {} }`.
+
+The `entities` branch keeps a dictionary of normalized (i.e. via normalizr) records, keyed by entity type then by record id.  The `schema` is a flat object containing normalizr entities.  Whenever an action has a payload shaped like the result of normalizr's `normalize()` function (`{ result, entities }`), the `entities` in that payload familiar to `schema` are processed into state.  The `shouldMerge` option can be `true`, `false`, or a function deciding whether to merge a given entity into the store, or to simply overwrite any records with the same id.  By default records do not merge unless they contain the property `_top: true`.
+
+The `indexes` branch keeps a dictionary of indexes to store the status and results of any action containing an index name in `{ meta: { index } }`.  It is a flat object of indexes keyed by name, where each index has the following shape:
+ - `inFlight` - the number of actions have begun per [`isTypeBegin()`](#istypebegintype), but not completed per [`isTypeSuccess()`](#istypesuccesstype) or [`isTypeFail()`](#istypefailtype).
+ - `result` - The `payload` of the last successful action per [`isTypeSuccess()`](#istypesuccesstype).  If the payload appears to be the result of normalizr's `normalize()` function, then `payload.result` is stored instead.
+ - `error` - The `payload` of the last action having `{ error: true }`.
+ - `original` - The `meta.original` of the last failing or successful action per [`isTypeSuccess()`](#istypesuccesstype) and [`isTypeFail()`](#istypefailtype), typically containing the payload of the "beginning" action.
+
+Indexing can be skipped by configuring `shouldIndex` to `false` or a function returning `true` or `false` given the index name.  Indexes are initialized in the store lazily, i.e. when they are first seen on an action's `meta.index` property.
+
+Typically `entities` and `indexes` work in tandem to keep track of normalized results from an external data-source while keeping them properly normalized.
