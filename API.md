@@ -95,6 +95,30 @@ Indicates whether the action `type` indicates the failure of an async action.
 ## Actions
 
 #### `createAction(type, config)`
+This utility makes an action creator from an action type and some configuration.  The configuration varies depending on whether the action type is simple or async, as described in [`createTypes()`](#createtypesprefix-config-and-type).
+
+When `type` is a simple action type (i.e. a string) then `config` takes the following options:
+
+ - `transform(...args)` - returns the action payload from the arguments passed to the action.  Defaults to return the array `args` unless there is only one argument, in which case it returns that sole argument.  Note that if `config` is a function, then it is taken to be the configuration for this option.
+
+Resulting actions take the shape `{ type, payload }`.
+
+When `type` is an async action type (i.e. an object `{ BASE, BEGIN, SUCCESS, FAIL }`) then `config` takes the following options:
+
+ - `async handler(...args)` - the asynchronous handler to run for this action.  Returning a value indicates success, and the value is used as the payload of the success action.  Throwing an error indicates failure, and is used as the payload of the error action.
+ - `after({ original, result })` - a function to run after a successful handler result.  The result of the handler is passed as `result`, while `original` contains the arguments passed to the handler.
+ - `index` - the name of an index to use with this action.  May be specified as a string, a function with the same arguments as `handler` returning the name, or `true` to use the action type base name.  For more information on indexes see [`createEntityReducer()`](#createentityreducer-schema-shouldmerge-shouldindex).
+ - `schema` - a [normalizr](https://github.com/paularmstrong/normalizr) schema used to normalize a successful `handler` result.  For more information on normalization see [`createEntityReducer()`].(#createentityreducer-schema-shouldmerge-shouldindex).
+ - `transform(...args)` - returns the original/"begin" action payload, and in turn the arguments to `handler()`, from the arguments passed to the action.  Defaults to return the array `args` unless there is only one argument, in which case it returns that sole argument.
+
+Resulting actions take the following shapes:
+ - When beginning `{ type: type.BEGIN, payload, meta: { index } }`
+ - Upon success `{ type: type.SUCCESS, payload, meta: { index, original } }`
+ - Upon failure `{ type: type.FAIL, error: true, payload, meta: { index, original } }`
+
+> **Note**
+>
+>Pardon the slight misnomer here: we found the name `createActionCreator()` to be more confusing than it's worth, so we're taking a liberty to conflate an action and it's creator.  We think it's clear from the purpose of this function that it would never actually return an action object or thunk.  If this bugs you, feel free to make your own alias.
 
 ## Reducers
 
