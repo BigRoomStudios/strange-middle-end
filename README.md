@@ -132,6 +132,8 @@ const MiddleEnd = require('strange-middle-end');
         }
     });
 
+    app.initialize();
+
     await app.dispatch.model.fetchUser({ id: 42 });
 
     console.log(app.selectors.model.getUser(app.getState()));
