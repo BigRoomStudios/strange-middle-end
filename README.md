@@ -108,6 +108,12 @@ const MiddleEnd = require('strange-middle-end');
                             const res = await fetch(`/user/${id}`);
 
                             return await res.json();
+                        },
+                        after: ({ original: { id } }) => {
+
+                            if (id > 42) {
+                                app.dispatch.counter.increment();
+                            }
                         }
                     })
                 },
