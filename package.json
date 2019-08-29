@@ -9,7 +9,7 @@
   },
   "scripts": {
     "build": "npm run clean && rollup -c",
-    "clean": "rimraf umd cjs esm",
+    "clean": "rimraf dist",
     "test": "lab -a @hapi/code -t 100 -L",
     "lint": "lab -dL",
     "coveralls": "lab -r lcov | coveralls"
