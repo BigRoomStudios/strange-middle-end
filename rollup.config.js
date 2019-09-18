@@ -2,7 +2,7 @@
 
 const PeerDepsExternal = require('rollup-plugin-peer-deps-external');
 const Resolve = require('rollup-plugin-node-resolve');
-const Commonjs = require('rollup-plugin-commonjs');
+const Commonjs = require('rollup-plugin-cjs-es');
 const Babel = require('rollup-plugin-babel');
 const { terser: Terser } = require('rollup-plugin-terser');
 const Filesize = require('rollup-plugin-filesize');
