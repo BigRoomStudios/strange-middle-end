@@ -347,6 +347,51 @@ describe('Core', () => {
             expect(m.selectors.a).to.shallow.equal(m.mods.a.selectors);
             expect(m.selectors.c).to.shallow.equal(m.mods.c.selectors);
         });
+
+        it('has state-bound selectors from mod branches.', () => {
+
+            const m = MiddleEnd.create({
+                mods: {
+                    a: {
+                        selectors: {
+                            getUpper: ({ a }) => a.toUpperCase()
+                        }
+                    },
+                    b: {},
+                    c: {
+                        selectors: {
+                            multiply: ({ c }, y) => c * y,
+                            some: 'value',
+                            group: {
+                                null: null,
+                                manyArgs: ({ c }, three, four, five) => `${c}${three}${four}${five}`
+                            }
+                        }
+                    },
+                    d: null
+                },
+                createStore: () => {
+
+                    return Redux.createStore(() => ({
+                        a: 'a',
+                        c: 2
+                    }));
+                }
+            });
+
+            m.initialize();
+
+            expect(m.select).to.only.contain(['a', 'c']);
+            expect(m.select.a).to.only.contain(['getUpper']);
+            expect(m.select.c).to.only.contain(['multiply', 'some', 'group']);
+            expect(m.select.c.group).to.only.contain(['null', 'manyArgs']);
+
+            expect(m.select.a.getUpper()).to.equal('A');
+            expect(m.select.c.multiply(15)).to.equal(30);
+            expect(m.select.c.some).to.equal('value');
+            expect(m.select.c.group.null).to.equal(null);
+            expect(m.select.c.group.manyArgs(3, 4, 5)).to.equal('2345');
+        });
     });
 
     describe('middleware', () => {
