@@ -28,8 +28,9 @@ Returns an uninitialized application:
  - `app.store` - the redux store returned from the application's `createStore` config.
  - `app.getState()` - an alias to `app.store.getState()`.
  - `app.dispatch()` - an alias to `app.store.dispatch()`.
- - `app.dispatch.MOD.ACTION()` - dispatches `MOD`'s action named `ACTION`, passing-along arguments to that action.  Same as `app.dispatch(app.actions.MOD.ACTION())`.
+ - `app.dispatch.MOD.ACTION()` - dispatches `MOD`'s action named `ACTION`, passing along arguments to that action.  Same as `app.dispatch(app.actions.MOD.ACTION())`.
  - `app.actions.MOD.ACTION()` - an alias for `MOD`'s action named `ACTION`.  Same as `app.mods.MOD.actions.ACTION()`.
+ - `app.select.MOD.SELECTOR()` - calls `MOD`'s selector named `SELECTOR` with the app's current state bound as the first argument and passing along additional arguments.  Same as `app.mods.MOD.selectors.SELECTOR(app.getState())`.
  - `app.selectors.MOD.SELECTOR()` - an alias for `MOD`'s selector named `SELECTOR`.  Same as `app.mods.MOD.selectors.SELECTOR()`.
 
 #### `middleware`
