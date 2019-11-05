@@ -36,7 +36,7 @@
   "peerDependencies": {
     "redux": ">=3 <5",
     "redux-thunk": "2.x.x",
-    "immer": ">=1 <4",
+    "immer": ">=1 <6",
     "normalizr": "3.x.x"
   },
   "devDependencies": {
@@ -54,7 +54,7 @@
     "rollup-plugin-node-resolve": "5.x.x",
     "rollup-plugin-peer-deps-external": "2.x.x",
     "rollup-plugin-terser": "5.x.x",
-    "immer": "3.x.x",
+    "immer": "5.x.x",
     "normalizr": "3.x.x",
     "npm-run-all": "4.x.x",
     "rimraf": "3.x.x"
