@@ -21,7 +21,7 @@ const MiddleEnd = require('strange-middle-end');
 
 (async () => {
 
-    const { FETCH_USER, INCREMENT } = MiddleEnd.createTypes({
+    const { INCREMENT, FETCH_USER } = MiddleEnd.createTypes({
         INCREMENT: MiddleEnd.type.simple,
         FETCH_USER: MiddleEnd.type.async
     });
@@ -142,7 +142,7 @@ const MiddleEnd = require('strange-middle-end');
 
     await app.dispatch.model.fetchUser({ id: 42 });
 
-    console.log(app.selectors.model.getUser(app.getState()));
+    console.log(app.select.model.getUser());
 
     app.dispatch.counter.increment();
 
