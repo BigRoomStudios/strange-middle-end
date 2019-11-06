@@ -34,16 +34,16 @@
   },
   "homepage": "https://github.com/bigroomstudios/strange-middle-end#readme",
   "peerDependencies": {
-    "redux": ">=3 <5",
+    "redux": "4.x",
     "redux-thunk": "2.x.x",
-    "immer": ">=1 <6",
+    "immer": "5.x",
     "normalizr": "3.x.x"
   },
   "devDependencies": {
-    "@babel/core": "^7.0.0",
-    "@babel/preset-env": "^7.0.0",
-    "@hapi/code": "6.x.x",
-    "@hapi/lab": "20.x.x",
+    "@babel/core": "^7.7.0",
+    "@babel/preset-env": "^7.7.1",
+    "@hapi/code": "7.x.x",
+    "@hapi/lab": "21.x.x",
     "coveralls": "3.x.x",
     "redux": "4.x.x",
     "redux-thunk": "2.x.x",
