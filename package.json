@@ -34,14 +34,14 @@
   },
   "homepage": "https://github.com/bigroomstudios/strange-middle-end#readme",
   "peerDependencies": {
-    "redux": "4.x",
+    "redux": ">=3 <5",
     "redux-thunk": "2.x.x",
     "immer": "5.x",
     "normalizr": "3.x.x"
   },
   "devDependencies": {
-    "@babel/core": "^7.7.0",
-    "@babel/preset-env": "^7.7.1",
+    "@babel/core": "^7.x.x",
+    "@babel/preset-env": "^7.x.x",
     "@hapi/code": "7.x.x",
     "@hapi/lab": "21.x.x",
     "coveralls": "3.x.x",
@@ -54,7 +54,7 @@
     "rollup-plugin-node-resolve": "5.x.x",
     "rollup-plugin-peer-deps-external": "2.x.x",
     "rollup-plugin-terser": "5.x.x",
-    "immer": "5.x.x",
+    "immer": ">=1 <6",
     "normalizr": "3.x.x",
     "npm-run-all": "4.x.x",
     "rimraf": "3.x.x"
