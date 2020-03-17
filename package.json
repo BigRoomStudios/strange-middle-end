@@ -1,6 +1,6 @@
 {
   "name": "strange-middle-end",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "a middle-end composer using redux, normalizr, and immer",
   "main": "dist/strange-middle-end.js",
   "module": "dist/strange-middle-end.module.js",
