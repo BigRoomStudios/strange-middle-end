@@ -45,7 +45,8 @@ module.exports = [
                 immer: 'immer',
                 normalizr: 'normalizr',
                 redux: 'Redux',
-                'redux-thunk': 'ReduxThunk'
+                'redux-thunk': 'ReduxThunk',
+                react: 'React'
             }
         },
         plugins: [
