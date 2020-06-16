@@ -163,3 +163,59 @@ The `indexes` branch keeps a dictionary of indexes to store the status and resul
 Indexing can be skipped by configuring `shouldIndex` to `false` or a function returning `true` or `false` given the index name.  Indexes are initialized in the store lazily, i.e. when they are first seen on an action's `meta.index` property.
 
 Typically `entities` and `indexes` work in tandem to keep track of normalized results from an external data-source while keeping them properly normalized.
+
+## React Bindings
+
+#### `<Provider middleEnd={app} />`
+
+React Context Provider component that handles providing the passed middle-end to any nested Context consumers.
+
+
+It requires the following prop:
+
+- `middleEnd`: A composed application that is set as the context value. The app must be initialized; the component throws otherwise
+
+```js
+const StrangeMiddleEnd = require('strange-middle-end');
+
+// const config = ... standard middle-end config e.g. input to create method
+
+function App ({ props }) {
+
+    const m = MiddleEnd.create(config).initialize();
+
+    return (
+        <MiddleEnd.Provider middleEnd={m}>
+            {/* 
+                Counter may now consume middleEnd context (see useMiddleEnd hook below) 
+            */}
+            <Counter />
+        </MiddleEnd.Provider>
+    )
+}
+```
+
+#### `useMiddleEnd`
+
+Hook that returns the current middle-end as contextualized by the nearest parent `Provider`.
+Follows the same rendering logic as [React's built-in `useContext`](https://reactjs.org/docs/hooks-reference.html#usecontext).
+
+```js
+function Counter ({ props }) {
+
+    const m = useMiddleEnd();
+
+    return (
+        <div>
+            <button onClick={() => m.dispatch.counter.increment()}>Increment</button>
+            {/* 
+                Note that this selector is NOT subscribed to our store, so will not re-render
+                the component on state change e.g. on clicking the button above.
+                For a subscribed selector, consider wrapping in react-redux's useSelector hook
+                e.g. useSelector(m.select.counter.get)
+            */}
+            {m.select.counter.get()}
+        </div>
+    )
+}
+```

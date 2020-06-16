@@ -10,8 +10,8 @@
   "scripts": {
     "build": "npm run clean && rollup -c",
     "clean": "rimraf dist",
-    "test": "lab -a @hapi/code -t 100 -L",
-    "lint": "lab -dL",
+    "test": "lab -a @hapi/code -t 100 -L -I 'regeneratorRuntime'",
+    "lint": "lab -dL -I 'regeneratorRuntime'",
     "coveralls": "lab -r lcov | coveralls"
   },
   "repository": {
