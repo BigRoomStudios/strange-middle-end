@@ -163,3 +163,93 @@ The `indexes` branch keeps a dictionary of indexes to store the status and resul
 Indexing can be skipped by configuring `shouldIndex` to `false` or a function returning `true` or `false` given the index name.  Indexes are initialized in the store lazily, i.e. when they are first seen on an action's `meta.index` property.
 
 Typically `entities` and `indexes` work in tandem to keep track of normalized results from an external data-source while keeping them properly normalized.
+
+## React Bindings
+
+#### `<Provider middleEnd={app} />`
+
+React Context Provider component that handles providing the passed middle-end to any nested Context consumers.
+
+
+It requires the following prop:
+
+- `middleEnd` - A composed application that is set as the context value. The app must be initialized; the component throws otherwise.
+
+```js
+const StrangeMiddleEnd = require('strange-middle-end');
+
+// const config = ... standard middle-end config e.g. input to create method
+
+function App ({ props }) {
+
+    const m = MiddleEnd.create(config).initialize();
+
+    return (
+        <MiddleEnd.Provider middleEnd={m}>
+            {/* 
+                Counter may now consume middleEnd context (see useMiddleEnd hook below) 
+            */}
+            <Counter />
+        </MiddleEnd.Provider>
+    )
+}
+```
+
+#### `useMiddleEnd()`
+
+Hook that returns the current middle-end as contextualized by the nearest parent `Provider`.
+Follows the same rendering logic as [React's built-in `useContext`](https://reactjs.org/docs/hooks-reference.html#usecontext).
+
+```js
+function Counter ({ props }) {
+
+    const m = useMiddleEnd();
+
+    return (
+        <div>
+            <button onClick={() => m.dispatch.counter.increment()}>Increment</button>
+        </div>
+    )
+}
+```
+
+
+If we want to subscribe to and rerender on the state changes dispatched by our button,
+we can lean on react-redux, specifically its `useSelector` hook.
+
+
+```js
+const ReactRedux = require('react-redux');
+const StrangeMiddleEnd = require('strange-middle-end');
+
+function App ({ props }) {
+
+    const m = MiddleEnd.create(config).initialize();
+
+    return (
+        <MiddleEnd.Provider middleEnd={m}>
+            <ReactRedux.Provider store={m.store}>
+                <Counter />
+            </ReactRedux.Provider>
+        </MiddleEnd.Provider>
+    )
+}
+
+// Then back in our Counter component
+
+const { useSelector } = require('react-redux');
+
+function Counter ({ props }) {
+
+    const m = useMiddleEnd();
+    // Subscribe our selector to changes in our store 
+    const count = useSelector(m.selectors.counter.get);
+
+    return (
+        <div>
+            <p>The count is {count}</p>
+            <button onClick={() => m.dispatch.counter.increment()}>Increment</button>
+        </div>
+    )
+}
+```

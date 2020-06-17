@@ -24,7 +24,9 @@ describe('StrangeMiddleEnd', () => {
             'isTypeSuccess',
             'isTypeFail',
             'createReducer',
-            'createEntityReducer'
+            'createEntityReducer',
+            'useMiddleEnd',
+            'Provider'
         ]);
     });
 
