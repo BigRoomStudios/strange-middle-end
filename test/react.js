@@ -70,7 +70,7 @@ describe('React', () => {
                 }
             });
 
-            expect(result.current).to.equal(middleEnd);
+            expect(result.current).to.shallow.equal(middleEnd);
 
             TestingHooks.act(() => {
 

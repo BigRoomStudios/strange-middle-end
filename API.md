@@ -195,7 +195,7 @@ function App ({ props }) {
 }
 ```
 
-#### `useMiddleEnd`
+#### `useMiddleEnd()`
 
 Hook that returns the current middle-end as contextualized by the nearest parent `Provider`.
 Follows the same rendering logic as [React's built-in `useContext`](https://reactjs.org/docs/hooks-reference.html#usecontext).
