@@ -173,7 +173,7 @@ React Context Provider component that handles providing the passed middle-end to
 
 It requires the following prop:
 
-- `middleEnd`: A composed application that is set as the context value. The app must be initialized; the component throws otherwise
+- `middleEnd` - A composed application that is set as the context value. The app must be initialized; the component throws otherwise.
 
 ```js
 const StrangeMiddleEnd = require('strange-middle-end');
