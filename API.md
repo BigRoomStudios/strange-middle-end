@@ -208,13 +208,47 @@ function Counter ({ props }) {
     return (
         <div>
             <button onClick={() => m.dispatch.counter.increment()}>Increment</button>
-            {/* 
-                Note that this selector is NOT subscribed to our store, so will not re-render
-                the component on state change e.g. on clicking the button above.
-                For a subscribed selector, consider wrapping in react-redux's useSelector hook
-                e.g. useSelector(m.select.counter.get)
-            */}
-            {m.select.counter.get()}
+        </div>
+    )
+}
+```
+
+
+If we want to subscribe to and rerender on the state changes dispatched by our button,
+we can lean on react-redux, specifically its `useSelector` hook.
+
+
+```js
+const ReactRedux = require('react-redux');
+const StrangeMiddleEnd = require('strange-middle-end');
+
+function App ({ props }) {
+
+    const m = MiddleEnd.create(config).initialize();
+
+    return (
+        <MiddleEnd.Provider middleEnd={m}>
+            <ReactRedux.Provider store={m.store}>
+                <Counter />
+            </ReactRedux.Provider>
+        </MiddleEnd.Provider>
+    )
+}
+
+// Then back in our Counter component
+
+const { useSelector } = require('react-redux');
+
+function Counter ({ props }) {
+
+    const m = useMiddleEnd();
+    // Subscribe our selector to changes in our store 
+    const count = useSelector(m.select.counter.get);
+
+    return (
+        <div>
+            <p>The count is {count}</p>
+            <button onClick={() => m.dispatch.counter.increment()}>Increment</button>
         </div>
     )
 }

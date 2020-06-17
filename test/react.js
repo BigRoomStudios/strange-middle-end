@@ -100,7 +100,7 @@ describe('React', () => {
                 }
             });
 
-            expect(result.current).to.equal(m2);
+            expect(result.current).to.shallow.equal(m2);
 
 
             const M = ({ count, dispatch, id }) => {
@@ -139,12 +139,12 @@ describe('React', () => {
                 const { id, count, m } = el.props;
                 if (id === 'outer') {
                     expect(count).to.equal(20);
-                    expect(m).to.equal(m1);
+                    expect(m).to.shallow.equal(m1);
                 }
 
                 if (id === 'inner') {
                     expect(count).to.equal(55);
-                    expect(m).to.equal(m2);
+                    expect(m).to.shallow.equal(m2);
                 }
             });
         });
@@ -227,7 +227,7 @@ describe('React', () => {
             button.props.onClick();
         });
 
-        // Counter hasn't rerender; selector isn't subscribed, dispatch isn't effectful,
+        // Counter hasn't rerendered; selector isn't subscribed, dispatch isn't effectful,
         // so clicking didn't trigger a rerender
         [button, text] = tree.root.findByType(Counter).children[0].children;
         expect(m.select.counter.get()).to.equal(1);
