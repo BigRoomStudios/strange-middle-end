@@ -243,7 +243,7 @@ function Counter ({ props }) {
 
     const m = useMiddleEnd();
     // Subscribe our selector to changes in our store 
-    const count = useSelector(m.select.counter.get);
+    const count = useSelector(m.selectors.counter.get);
 
     return (
         <div>
