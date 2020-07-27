@@ -105,6 +105,18 @@ describe('Actions', () => {
             ]);
 
             expect(results).to.equal([null, { id: 1 }]);
+
+            // Extra check for special case — single array arg
+            const arrayResults = await store.dispatch(actionX([{ id: 3 }, { id: 4 }]));
+
+            expect(store.getState()).to.equal([
+                { type: X.BEGIN, payload: { id: 1 }, meta: { index: null } },
+                { type: X.SUCCESS, payload: { id: 1 }, meta: { index: null, original: { id: 1 } } },
+                { type: X.BEGIN, payload: [[{ id: 3 }, { id: 4 }]], meta: { index: null } },
+                { type: X.SUCCESS, payload: [[{ id: 3 }, { id: 4 }]], meta: { index: null, original: [[{ id: 3 }, { id: 4 }]] } }
+            ]);
+
+            expect(arrayResults).to.equal([null, [[{ id: 3 }, { id: 4 }]]]);
         });
 
         it('creates an async action with a handler that succeeds.', async () => {
