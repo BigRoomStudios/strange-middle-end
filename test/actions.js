@@ -107,6 +107,33 @@ describe('Actions', () => {
             expect(results).to.equal([null, { id: 1 }]);
         });
 
+        it('preserves special case single array arguments.', async () => {
+
+            const store = createActionRecordingStore();
+
+            const { X } = MiddleEnd.createTypes({
+                X: MiddleEnd.type.async
+            });
+
+            const actionX = MiddleEnd.createAction(X, {
+
+                handler: (...args) => {
+
+                    expect(args).to.equal([[{ id: 1 }, { id: 2 }]]);
+                    return args;
+                }
+            });
+
+            const results = await store.dispatch(actionX([{ id: 1 }, { id: 2 }]));
+
+            expect(store.getState()).to.equal([
+                { type: X.BEGIN, payload: [[{ id: 1 }, { id: 2 }]], meta: { index: null } },
+                { type: X.SUCCESS, payload: [[{ id: 1 }, { id: 2 }]], meta: { index: null, original: [[{ id: 1 }, { id: 2 }]] } }
+            ]);
+
+            expect(results).to.equal([null, [[{ id: 1 }, { id: 2 }]]]);
+        });
+
         it('creates an async action with a handler that succeeds.', async () => {
 
             const store = createActionRecordingStore();
