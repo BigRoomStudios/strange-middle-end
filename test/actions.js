@@ -105,18 +105,33 @@ describe('Actions', () => {
             ]);
 
             expect(results).to.equal([null, { id: 1 }]);
+        });
 
-            // Extra check for special case — single array arg
-            const arrayResults = await store.dispatch(actionX([{ id: 2 }, { id: 3 }]));
+        it('preserves special case single array arguments.', async () => {
+
+            const store = createActionRecordingStore();
+
+            const { X } = MiddleEnd.createTypes({
+                X: MiddleEnd.type.async
+            });
+
+            const actionX = MiddleEnd.createAction(X, {
+
+                handler: (...args) => {
+
+                    expect(args).to.equal([[{ id: 1 }, { id: 2 }]]);
+                    return args;
+                }
+            });
+
+            const results = await store.dispatch(actionX([{ id: 1 }, { id: 2 }]));
 
             expect(store.getState()).to.equal([
-                { type: X.BEGIN, payload: { id: 1 }, meta: { index: null } },
-                { type: X.SUCCESS, payload: { id: 1 }, meta: { index: null, original: { id: 1 } } },
-                { type: X.BEGIN, payload: [[{ id: 2 }, { id: 3 }]], meta: { index: null } },
-                { type: X.SUCCESS, payload: [[{ id: 2 }, { id: 3 }]], meta: { index: null, original: [[{ id: 2 }, { id: 3 }]] } }
+                { type: X.BEGIN, payload: [[{ id: 1 }, { id: 2 }]], meta: { index: null } },
+                { type: X.SUCCESS, payload: [[{ id: 1 }, { id: 2 }]], meta: { index: null, original: [[{ id: 1 }, { id: 2 }]] } }
             ]);
 
-            expect(arrayResults).to.equal([null, [[{ id: 2 }, { id: 3 }]]]);
+            expect(results).to.equal([null, [[{ id: 1 }, { id: 2 }]]]);
         });
 
         it('creates an async action with a handler that succeeds.', async () => {
