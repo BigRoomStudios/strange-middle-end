@@ -48,7 +48,7 @@
     "@rollup/plugin-node-resolve": "7.x.x",
     "@testing-library/react-hooks": "3.x.x",
     "coveralls": "3.x.x",
-    "immer": "6.x.x",
+    "immer": "8.x.x",
     "normalizr": "3.x.x",
     "npm-run-all": "4.x.x",
     "react": "^16.8.x",
