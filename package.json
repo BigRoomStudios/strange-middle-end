@@ -36,7 +36,7 @@
   "peerDependencies": {
     "redux": ">=3 <5",
     "redux-thunk": "2.x.x",
-    "immer": ">=1 <8.x.x",
+    "immer": ">=1 <=8.x.x",
     "normalizr": "3.x.x",
     "react": ">=16.8.x <18"
   },
