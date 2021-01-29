@@ -52,7 +52,7 @@
     "normalizr": "3.x.x",
     "npm-run-all": "4.x.x",
     "react": "17.x.x",
-    "react-test-renderer": "16.8.x",
+    "react-test-renderer": "17.x.x",
     "redux": "4.x.x",
     "redux-thunk": "2.x.x",
     "rimraf": "3.x.x",
