@@ -36,31 +36,31 @@
   "peerDependencies": {
     "redux": ">=3 <5",
     "redux-thunk": "2.x.x",
-    "immer": ">=1 <7",
+    "immer": ">=1 <10",
     "normalizr": "3.x.x",
-    "react": ">=16.8.x <17"
+    "react": ">=16.8.x <18"
   },
   "devDependencies": {
     "@babel/core": "7.x.x",
     "@babel/preset-env": "7.x.x",
     "@hapi/code": "8.x.x",
-    "@hapi/lab": "22.x.x",
-    "@rollup/plugin-node-resolve": "7.x.x",
-    "@testing-library/react-hooks": "3.x.x",
+    "@hapi/lab": "24.x.x",
+    "@rollup/plugin-node-resolve": "11.x.x",
+    "@testing-library/react-hooks": "5.x.x",
     "coveralls": "3.x.x",
-    "immer": "6.x.x",
+    "immer": "9.x.x",
     "normalizr": "3.x.x",
     "npm-run-all": "4.x.x",
-    "react": "^16.8.x",
-    "react-test-renderer": "^16.8.x",
+    "react": "17.x.x",
+    "react-test-renderer": "17.x.x",
     "redux": "4.x.x",
     "redux-thunk": "2.x.x",
     "rimraf": "3.x.x",
     "rollup": "2.x.x",
     "rollup-plugin-babel": "4.x.x",
     "rollup-plugin-cjs-es": "1.x.x",
-    "rollup-plugin-filesize": "7.x.x",
+    "rollup-plugin-filesize": "9.x.x",
     "rollup-plugin-peer-deps-external": "2.x.x",
-    "rollup-plugin-terser": "5.x.x"
+    "rollup-plugin-terser": "7.x.x"
   }
 }
