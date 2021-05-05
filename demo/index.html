@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>strange-router demo</title>
+    <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/normalizr@3.3.0/dist/normalizr.umd.js"></script>
+    <script src="https://unpkg.com/immer@9.0.2/dist/immer.umd.production.min.js"></script>
+    <script src="https://unpkg.com/redux@4.1.0/dist/redux.js"></script>
+    <script src="https://unpkg.com/redux-thunk@2.1.0/dist/redux-thunk.js"></script>
+    <!-- TODO Copy from dist to the demo directory -->
+    <script src="strange-middle-end.umd.min.js"></script>
+  </head>
+  <body>
+    <pre id="print"></pre>
+    <script>
+
+        const printPre = document.getElementById('print');
+
+        (async () => {
+
+            const { INCREMENT, FETCH_USER } = StrangeMiddleEnd.createTypes({
+                INCREMENT: StrangeMiddleEnd.type.simple,
+                FETCH_USER: StrangeMiddleEnd.type.async
+            });
+
+            const actions = {
+                increment: StrangeMiddleEnd.createAction(INCREMENT),
+                fetchUser: StrangeMiddleEnd.createAction(FETCH_USER, {
+                    handler: async ({ id }) => {
+
+                        const res = await fetch(`https://jsonplaceholder.typicode.com/users/${id}`);
+
+                        return await res.json();
+                    }
+                })
+            };
+
+            const reducer = StrangeMiddleEnd.createReducer({ mutable: true }, { count: 0, user: null }, {
+                [INCREMENT]: (draft) => {
+
+                    draft.count++;
+                },
+                [FETCH_USER.SUCCESS]: (draft, { payload }) => {
+
+                    draft.user = payload;
+                }
+            });
+
+            const store = Redux.createStore(reducer, Redux.applyMiddleware(
+                StrangeMiddleEnd.middleware.thunk
+            ));
+
+            await store.dispatch(actions.fetchUser({ id: 1 }));
+
+            store.dispatch(actions.increment());
+
+            printPre.textContent = JSON.stringify(store.getState(), null, 2);
+        })();
+    </script>
+  </body>
+</html>

@@ -4,11 +4,11 @@ const Code = require('@hapi/code');
 const Lab = require('@hapi/lab');
 const React = require('react');
 const Redux = require('redux');
-const TestingHooks = require('@testing-library/react-hooks');
+const TestingHooks = require('@testing-library/react-hooks/pure');
 const TestRenderer = require('react-test-renderer');
 const MiddleEnd = require('../lib');
 
-const { describe, it } = exports.lab = Lab.script();
+const { after, before, describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
 
 const createMiddleEnd = (init = true, initialState = 0) => {
@@ -41,6 +41,16 @@ const createMiddleEnd = (init = true, initialState = 0) => {
 };
 
 describe('React', () => {
+
+    let restoreConsole;
+    before(() => {
+
+        restoreConsole = TestingHooks.suppressErrorOutput();
+    });
+    after(() => {
+
+        restoreConsole();
+    });
 
     describe('useMiddleEnd', () => {
 
